@@ -11,4 +11,10 @@ class Location extends Model {
     protected $fillable = ['location_name', 'address', 'is_active'];
     protected $dates = ['deleted_at']; // <--- Beritahu Laravel ini kolom tanggal
     public $timestamps = true; // Aktifkan timestamps agar created_at & updated_at otomatis
+
+    public function products() {
+        return $this->belongsToMany(Product::class, 'location_product')
+                    ->withPivot('price', 'stock')
+                    ->withTimestamps();
+    }
 }

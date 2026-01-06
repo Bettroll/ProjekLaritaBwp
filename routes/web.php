@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminLocationController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AdminStockController;
+use App\Http\Controllers\AdminVoucherController;
 
 // Halaman awal
 Route::get('/', function () { return redirect('/login'); });
@@ -44,4 +46,15 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/admin/produk/tambah', [AdminProductController::class, 'store']);
     Route::post('/admin/produk/update/{id}', [AdminProductController::class, 'update']);
     Route::get('/admin/produk/hapus/{id}', [AdminProductController::class, 'destroy']);
+
+    Route::get('/admin/stok', [AdminStockController::class, 'index']);
+    Route::get('/admin/stok/kelola/{location_id}', [AdminStockController::class, 'manage']);
+    Route::post('/admin/stok/tambah-roti/{location_id}', [AdminStockController::class, 'addProduct']);
+    Route::post('/admin/stok/update/{location_id}/{product_id}', [AdminStockController::class, 'updateStock']);
+    Route::get('/admin/stok/hapus/{location_id}/{product_id}', [AdminStockController::class, 'removeProduct']);
+
+    Route::get('/admin/voucher', [AdminVoucherController::class, 'index']);
+    Route::post('/admin/voucher/tambah', [AdminVoucherController::class, 'store']);
+    Route::post('/admin/voucher/update/{id}', [AdminVoucherController::class, 'update']);
+    Route::get('/admin/voucher/hapus/{id}', [AdminVoucherController::class, 'destroy']);
 });
