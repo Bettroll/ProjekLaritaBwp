@@ -18,4 +18,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+    public function locations() {
+        return $this->belongsToMany(Location::class, 'location_product')
+                    ->withPivot('price', 'stock') // Supaya data harga & stok bisa diambil
+                    ->withTimestamps();
+    }
 }

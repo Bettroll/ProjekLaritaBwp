@@ -18,24 +18,58 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-2 sidebar p-0">
-            <h4 class="text-center fw-bold text-warning mb-4">LARITA ADMIN</h4>
-            <a href="/admin/dashboard">🏠 Dashboard</a>
-            <hr>
-            <p class="px-3 small text-uppercase text-secondary">Master Data</p>
-            <a href="/admin/kategori">📂 Master Kategori</a>
-            <a href="/admin/lokasi">📍 Master Lokasi</a>
-            <a href="/admin/produk">🍞 Master Produk Roti</a>
-            <hr>
-            <p class="px-3 small text-uppercase text-secondary">Transaksi</p>
-            <a href="/admin/transaksi">🛒 Pesanan Masuk</a>
-            <a href="/admin/laporan">📊 Laporan Penjualan</a>
-            <hr>
-            <form action="/logout" method="POST" class="px-3">
-                @csrf
-                <button type="submit" class="btn btn-danger btn-sm w-100">Keluar</button>
-            </form>
-        </div>
+        <!-- Sidebar di dalam file admin_master.blade.php -->
+    <div class="col-md-2 sidebar p-0">
+        <h4 class="text-center fw-bold text-warning mt-4 mb-4">LARITA ADMIN</h4>
+        
+        <!-- Menu Dashboard -->
+        <a href="/admin/dashboard" class="{{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            🏠 Dashboard
+        </a>
+        
+        <hr class="text-secondary">
+        <p class="px-3 small text-uppercase text-secondary mb-1">Master Data</p>
+        
+        <a href="/admin/kategori" class="{{ Request::is('admin/kategori*') ? 'active' : '' }}">
+            📂 Master Kategori
+        </a>
+        
+        <a href="/admin/lokasi" class="{{ Request::is('admin/lokasi*') ? 'active' : '' }}">
+            📍 Master Lokasi
+        </a>
+        
+        <a href="/admin/produk" class="{{ Request::is('admin/produk*') ? 'active' : '' }}">
+            🍞 Master Produk Roti
+        </a>
+
+        <!-- LINK BARU: STOK & HARGA -->
+        <a href="/admin/stok" class="{{ Request::is('admin/stok*') ? 'active' : '' }}">
+            💰 Stok & Harga Cabang
+        </a>
+
+        <!-- LINK BARU: VOUCHER (Persiapan) -->
+        <a href="/admin/voucher" class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
+            🎫 Master Voucher
+        </a>
+
+        <hr class="text-secondary">
+        <p class="px-3 small text-uppercase text-secondary mb-1">Operasional</p>
+        
+        <a href="/admin/transaksi" class="{{ Request::is('admin/transaksi*') ? 'active' : '' }}">
+            🛒 Pesanan Masuk
+        </a>
+        
+        <a href="/admin/laporan" class="{{ Request::is('admin/laporan*') ? 'active' : '' }}">
+            📊 Laporan Penjualan
+        </a>
+        
+        <hr class="text-secondary">
+        
+        <form action="/logout" method="POST" class="px-3 mt-3">
+            @csrf
+            <button type="submit" class="btn btn-danger btn-sm w-100">Keluar / Logout</button>
+        </form>
+    </div>
 
         <!-- Main Content -->
         <div class="col-md-10 content">
