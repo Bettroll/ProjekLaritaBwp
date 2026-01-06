@@ -9,6 +9,8 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminStockController;
 use App\Http\Controllers\AdminVoucherController;
 
+use App\Http\Controllers\MemberController;
+
 // Halaman awal
 Route::get('/', function () { return redirect('/login'); });
 
@@ -21,9 +23,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 // --- GROUP MEMBER (Hanya bisa dibuka kalau login sebagai member) ---
 Route::middleware(['role:member'])->group(function () {
-    Route::get('/home', function () {
-        return view('member_home');
-    });
+    Route::get('/home', [MemberController::class, 'index']);
+    Route::post('/set-location', [MemberController::class, 'setLocation']);
 });
 
 // --- GROUP ADMIN (Hanya bisa dibuka kalau login sebagai admin) ---

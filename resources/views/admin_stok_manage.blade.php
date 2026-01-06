@@ -18,8 +18,9 @@
                 <tr>
                     <th>Gambar</th>
                     <th>Nama Roti</th>
-                    <th>Harga (Rp)</th>
-                    <th>Stok</th>
+                    <th class="text-center">❤️ Like</th> <!-- Tambah kolom ini -->
+                    <th width="150">Harga (Rp)</th>
+                    <th width="100">Stok</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -31,18 +32,25 @@
                         <strong>{{ $p->product_name }}</strong><br>
                         <small class="badge bg-light text-dark border">{{ $p->category->category_name ?? '-' }}</small>
                     </td>
+                    
+                    <!-- TAMPILKAN JUMLAH LIKE SPESIFIK LOKASI -->
+                    <td class="text-center">
+                        <span class="fw-bold text-danger">
+                            {{ \App\Models\ProductLike::where('product_id', $p->id)->where('location_id', $location->id)->count() }}
+                        </span>
+                    </td>
+
                     <form action="/admin/stok/update/{{ $location->id }}/{{ $p->id }}" method="POST">
                         @csrf
                         <td>
-                            <input type="number" name="price" class="form-control form-control-sm" value="{{ $p->pivot->price }}" style="width: 120px;">
+                            <input type="number" name="price" class="form-control form-control-sm" value="{{ $p->pivot->price }}">
                         </td>
                         <td>
-                            <input type="number" name="stock" class="form-control form-control-sm" value="{{ $p->pivot->stock }}" style="width: 80px;">
+                            <input type="number" name="stock" class="form-control form-control-sm" value="{{ $p->pivot->stock }}">
                         </td>
                         <td>
                             <button type="submit" class="btn btn-success btn-sm">Update</button>
-                            <a href="/admin/stok/hapus/{{ $location->id }}/{{ $p->id }}" 
-                               class="btn btn-danger btn-sm" onclick="return confirm('Tarik roti ini dari toko?')">Hapus</a>
+                            <a href="/admin/stok/hapus/{{ $location->id }}/{{ $p->id }}" class="btn btn-danger btn-sm">Hapus</a>
                         </td>
                     </form>
                 </tr>

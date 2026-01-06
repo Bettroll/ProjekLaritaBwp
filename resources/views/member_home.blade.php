@@ -1,18 +1,90 @@
-@extends('master')
+@extends('member_master')
 
-@section('konten_utama')
-<div class="card auth-card p-5">
-    <h2 class="fw-bold">Menu Larita Bakery</h2>
-    <p>Selamat datang, <strong>{{ Auth::user()->name }}</strong>!</p>
-    <div class="bg-warning p-2 rounded mb-3 text-dark">
-        Poin Kamu: <strong>{{ Auth::user()->points }}</strong>
+@section('konten_member')
+
+<!-- 1. PEMILIHAN LOKASI -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm p-3">
+            <form action="/set-location" method="POST" class="row align-items-center">
+                @csrf
+                <div class="col-md-4">
+                    <label class="fw-bold mb-1">📍 Pilih Outlet Larita:</label>
+                    <select name="location_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Pilih Lokasi Belanja --</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}" {{ $selectedLocation && $selectedLocation->id == $loc->id ? 'selected' : '' }}>
+                                {{ $loc->location_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @if($selectedLocation)
+                <div class="col-md-8 mt-3 mt-md-0">
+                    <div class="alert alert-info mb-0 py-2">
+                        Anda berbelanja di: <strong>{{ $selectedLocation->location_name }}</strong><br>
+                        <small>{{ $selectedLocation->address }}</small>
+                    </div>
+                </div>
+                @endif
+            </form>
+        </div>
     </div>
-    <hr>
-    <p>Daftar roti akan muncul di sini.</p>
-    
-    <form action="/logout" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-outline-danger">Logout</button>
-    </form>
 </div>
+
+@if($selectedLocation)
+    <!-- 2. FILTER KATEGORI -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h5 class="fw-bold mb-3">Kategori Roti</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/home?category=all" class="btn btn-sm {{ !request('category') || request('category') == 'all' ? 'btn-larita text-white' : 'btn-outline-secondary' }}" style="background-color: {{ !request('category') || request('category') == 'all' ? '#8B4513' : '' }}">Semua</a>
+                @foreach($categories as $cat)
+                    <a href="/home?category={{ $cat->id }}" class="btn btn-sm {{ request('category') == $cat->id ? 'btn-larita text-white' : 'btn-outline-secondary' }}" style="background-color: {{ request('category') == $cat->id ? '#8B4513' : '' }}">
+                        {{ $cat->category_name }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DAFTAR PRODUK -->
+    <div class="row">
+        @forelse($products as $p)
+            @php
+                $pivotData = $p->locations->first()->pivot;
+                $likeCount = \App\Models\ProductLike::where('product_id', $p->id)->where('location_id', $selectedLocation->id)->count();
+            @endphp
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 product-card">
+                    <img src="{{ asset('images/products/'.$p->image) }}" class="card-img-top p-2 rounded" style="height: 180px; object-fit: cover;">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-1">{{ $p->product_name }}</h6>
+                        <p class="small text-muted mb-2">{{ Str::limit($p->description, 40) }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-tag">Rp {{ number_format($pivotData->price) }}</span>
+                            <span class="text-danger small">❤️ {{ $likeCount }}</span>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-secondary">Stok: {{ $pivotData->stock }}</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <button class="btn btn-keranjang w-100">🛒 + Keranjang</button>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Belum ada produk untuk kategori/lokasi ini.</p>
+            </div>
+        @endforelse
+    </div>
+@else
+    <div class="text-center py-5">
+        <img src="https://cdn-icons-png.flaticon.com/512/1048/1048329.png" width="100" class="mb-3 opacity-50">
+        <h5 class="text-muted">Silakan pilih lokasi outlet terlebih dahulu untuk melihat menu roti.</h5>
+    </div>
+@endif
+
 @endsection

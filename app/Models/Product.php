@@ -24,4 +24,10 @@ class Product extends Model
                     ->withPivot('price', 'stock') // Supaya data harga & stok bisa diambil
                     ->withTimestamps();
     }
+
+        // Tambahkan ini di dalam class Product
+    public function likes()
+    {
+        return $this->hasMany(ProductLike::class, 'product_id');
+    }
 }
