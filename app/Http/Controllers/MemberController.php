@@ -162,4 +162,30 @@ class MemberController extends Controller
 
     return redirect('/home')->with('order_success', true);
 }
+
+    public function history(Request $request)
+    {
+        $search = $request->get('search');
+        
+        // Mengambil transaksi milik user yang login saja
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->with(['location', 'details.product']) // Load relasi biar gak boros query
+            ->when($search, function($query) use ($search) {
+                return $query->where('invoice_number', 'like', '%' . $search . '%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('member_history', compact('transactions'));
+    }
+
+    public function showDetail($id)
+    {
+        $trx = Transaction::with(['location', 'details.product'])
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        return view('member_history_detail', compact('trx'));
+    }
+
 }

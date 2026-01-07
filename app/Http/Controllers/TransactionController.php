@@ -19,6 +19,6 @@ class TransactionController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
-        return view('member_transaksi', compact('transactions'));
+        return view('member_history', compact('transactions'));
     }
 }

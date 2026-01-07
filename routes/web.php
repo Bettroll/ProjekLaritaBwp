@@ -42,9 +42,12 @@ Route::middleware(['role:member'])->group(function () {
 
     Route::post('/checkout/proses', [MemberController::class, 'placeOrder']);
 
-    // Route Transaksi
-    Route::get('/riwayat-transaksi', [MemberController::class, 'transaksiHistory'])->name('member.transaksi');
+    // Route history
+    Route::get('/riwayat-transaksi', [MemberController::class, 'history']);
+    Route::get('/riwayat-transaksi/detail/{id}', [MemberController::class, 'showDetail']);
 });
+
+
 
 // --- GROUP ADMIN (Hanya bisa dibuka kalau login sebagai admin) ---
 Route::middleware(['role:admin'])->group(function () {
