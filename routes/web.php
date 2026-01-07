@@ -8,6 +8,8 @@ use App\Http\Controllers\AdminLocationController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminStockController;
 use App\Http\Controllers\AdminVoucherController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\MemberVoucherController;
 
 use App\Http\Controllers\MemberController;
 
@@ -25,6 +27,23 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware(['role:member'])->group(function () {
     Route::get('/home', [MemberController::class, 'index']);
     Route::post('/set-location', [MemberController::class, 'setLocation']);
+
+    // Route Keranjang
+    Route::get('/keranjang', [CartController::class, 'index']);
+    Route::post('/keranjang/tambah', [CartController::class, 'addToCart']);
+    Route::post('/keranjang/update-qty', [CartController::class, 'updateQuantity']);
+    Route::get('/keranjang/hapus/{id}', [CartController::class, 'delete']);
+
+    Route::get('/checkout', [MemberController::class, 'checkoutIndex']);
+
+    // Route Voucher
+    Route::get('/voucher', [MemberVoucherController::class, 'index']);
+    Route::post('/voucher/tukar/{id}', [MemberVoucherController::class, 'redeem']);
+
+    Route::post('/checkout/proses', [MemberController::class, 'placeOrder']);
+
+    // Route Transaksi
+    Route::get('/riwayat-transaksi', [MemberController::class, 'transaksiHistory'])->name('member.transaksi');
 });
 
 // --- GROUP ADMIN (Hanya bisa dibuka kalau login sebagai admin) ---

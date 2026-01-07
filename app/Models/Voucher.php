@@ -17,4 +17,9 @@ class Voucher extends Model
         'points_needed', 
         'quota'
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_vouchers');
+    }
 }

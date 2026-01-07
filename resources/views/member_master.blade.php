@@ -31,14 +31,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link {{ Request::is('home*') ? 'active' : '' }}" href="/home">Beranda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Voucher</a></li>
+                    <li class="nav-item"><a class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}" href="/voucher">Voucher</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Transaksi</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Product Likes</a></li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <a href="#" class="btn btn-warning btn-sm me-3 position-relative">
+                    <!-- Di dalam member_master.blade.php -->
+                    <a href="/keranjang" class="btn btn-warning btn-sm me-3 position-relative">
                         🛒 Keranjang
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                        @if(Auth::check())
+                            @php
+                                // Hitung jumlah jenis produk unik di keranjang untuk lokasi aktif
+                                $cartCount = Auth::user()->carts()
+                                            ->where('location_id', session('selected_location_id'))
+                                            ->count();
+                            @endphp
+                            
+                            @if($cartCount > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ $cartCount }}
+                                </span>
+                            @endif
+                        @endif
                     </a>
                     <div class="dropdown">
                         <a class="text-white text-decoration-none dropdown-toggle" href="#" data-bs-toggle="dropdown">
