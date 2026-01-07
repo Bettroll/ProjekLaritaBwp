@@ -27,4 +27,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'user_id');
+    }
+
+    public function vouchers()
+    {
+        return $this->belongsToMany(Voucher::class, 'user_vouchers')
+                    ->withPivot('is_used', 'redeemed_at')
+                    ->withTimestamps();
+    }
 }
