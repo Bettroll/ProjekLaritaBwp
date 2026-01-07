@@ -69,9 +69,12 @@
                             <small class="text-secondary">Stok: {{ $pivotData->stock }}</small>
                         </div>
                     </div>
-                    <div class="card-footer bg-white border-0 pb-3">
-                        <button class="btn btn-keranjang w-100">🛒 + Keranjang</button>
-                    </div>
+                    <!-- Ganti tombol keranjang lama dengan ini -->
+                    <form action="/keranjang/tambah" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $p->id }}">
+                        <button type="submit" class="btn btn-keranjang w-100">🛒 + Keranjang</button>
+                    </form>
                 </div>
             </div>
         @empty
@@ -85,6 +88,30 @@
         <img src="https://cdn-icons-png.flaticon.com/512/1048/1048329.png" width="100" class="mb-3 opacity-50">
         <h5 class="text-muted">Silakan pilih lokasi outlet terlebih dahulu untuk melihat menu roti.</h5>
     </div>
+@endif
+
+<!-- Modal Sukses Pembayaran -->
+@if(session('order_success'))
+<div class="modal fade" id="modalOrderSuccess" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow text-center">
+            <div class="modal-body py-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/5290/5290058.png" width="80" class="mb-3">
+                <h4 class="fw-bold text-success">Pembayaran Berhasil!</h4>
+                <p class="text-muted small">Pesanan Anda sedang diproses. Silakan cek menu Riwayat Transaksi.</p>
+                <button type="button" class="btn btn-success w-100 mt-3" data-bs-dismiss="modal">Mantap!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Jalankan modal otomatis saat halaman reload jika ada session order_success
+    document.addEventListener("DOMContentLoaded", function() {
+        var myModal = new bootstrap.Modal(document.getElementById('modalOrderSuccess'));
+        myModal.show();
+    });
+</script>
 @endif
 
 @endsection
