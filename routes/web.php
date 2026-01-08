@@ -88,5 +88,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/admin/voucher/update/{id}', [AdminVoucherController::class, 'update']);
     Route::get('/admin/voucher/hapus/{id}', [AdminVoucherController::class, 'destroy']);
 
+    Route::get('/admin/pesanan', [AdminOrderController::class, 'index']);
+    Route::post('/admin/pesanan/status/{id}', [AdminOrderController::class, 'updateStatus']);
+    Route::get('/admin/pesanan/detail/{id}', [AdminOrderController::class, 'show']);
     Route::get('/admin/laporan', [AdminReportController::class, 'index']);
 });
