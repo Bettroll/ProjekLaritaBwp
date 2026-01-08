@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AdminStockController;
 use App\Http\Controllers\AdminVoucherController;
+use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\MemberVoucherController;
 
@@ -87,5 +88,12 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/admin/voucher/update/{id}', [AdminVoucherController::class, 'update']);
     Route::get('/admin/voucher/hapus/{id}', [AdminVoucherController::class, 'destroy']);
 
+<<<<<<< HEAD
     Route::get('/admin/laporan', [AdminReportController::class, 'index']);
+=======
+    // Pesanan Masuk
+    Route::get('/admin/pesanan', [AdminOrderController::class, 'index']);
+    Route::post('/admin/pesanan/status/{id}', [AdminOrderController::class, 'updateStatus']);
+    Route::get('/admin/pesanan/detail/{id}', [AdminOrderController::class, 'show']);
+>>>>>>> origin/main
 });

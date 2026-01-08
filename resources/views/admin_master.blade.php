@@ -55,7 +55,7 @@
         <hr class="text-secondary">
         <p class="px-3 small text-uppercase text-secondary mb-1">Operasional</p>
         
-        <a href="/admin/transaksi" class="{{ Request::is('admin/transaksi*') ? 'active' : '' }}">
+        <a href="/admin/pesanan" class="{{ Request::is('admin/pesanan*') ? 'active' : '' }}">
             🛒 Pesanan Masuk
         </a>
         
