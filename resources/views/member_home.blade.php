@@ -5,11 +5,13 @@
 <!-- 1. PEMILIHAN LOKASI -->
 <div class="row mb-4">
     <div class="col-md-12">
-        <div class="card border-0 shadow-sm p-3">
-            <form action="/set-location" method="POST" class="row align-items-center">
+        <div class="card p-4">
+            <form action="/set-location" method="POST" class="row align-items-center g-3">
                 @csrf
                 <div class="col-md-4">
-                    <label class="fw-bold mb-1">📍 Pilih Outlet Larita:</label>
+                    <label class="form-label fw-bold mb-2">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>Pilih Outlet Larita
+                    </label>
                     <select name="location_id" class="form-select" onchange="this.form.submit()">
                         <option value="">-- Pilih Lokasi Belanja --</option>
                         @foreach($locations as $loc)
@@ -20,10 +22,13 @@
                     </select>
                 </div>
                 @if($selectedLocation)
-                <div class="col-md-8 mt-3 mt-md-0">
-                    <div class="alert alert-info mb-0 py-2">
-                        Anda berbelanja di: <strong>{{ $selectedLocation->location_name }}</strong><br>
-                        <small>{{ $selectedLocation->address }}</small>
+                <div class="col-md-8">
+                    <div class="alert alert-info mb-0 d-flex align-items-center">
+                        <i class="bi bi-shop fs-4 me-3"></i>
+                        <div>
+                            <strong>{{ $selectedLocation->location_name }}</strong><br>
+                            <small class="text-muted">{{ $selectedLocation->address }}</small>
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -36,14 +41,20 @@
     <!-- 2. FILTER KATEGORI -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <h5 class="fw-bold mb-3">Kategori Roti</h5>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="/home?category=all" class="btn btn-sm {{ !request('category') || request('category') == 'all' ? 'btn-larita text-white' : 'btn-outline-secondary' }}" style="background-color: {{ !request('category') || request('category') == 'all' ? '#8B4513' : '' }}">Semua</a>
-                @foreach($categories as $cat)
-                    <a href="/home?category={{ $cat->id }}" class="btn btn-sm {{ request('category') == $cat->id ? 'btn-larita text-white' : 'btn-outline-secondary' }}" style="background-color: {{ request('category') == $cat->id ? '#8B4513' : '' }}">
-                        {{ $cat->category_name }}
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-grid-3x3-gap-fill me-2" style="color: #8B4513;"></i>Kategori Roti
+                </h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/home?category=all" class="btn btn-sm {{ !request('category') || request('category') == 'all' ? 'btn-larita' : 'btn-outline-secondary' }}">
+                        <i class="bi bi-collection me-1"></i>Semua
                     </a>
-                @endforeach
+                    @foreach($categories as $cat)
+                        <a href="/home?category={{ $cat->id }}" class="btn btn-sm {{ request('category') == $cat->id ? 'btn-larita' : 'btn-outline-secondary' }}">
+                            {{ $cat->category_name }}
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
@@ -55,9 +66,20 @@
                 $pivotData = $p->locations->first()->pivot;
                 $likeCount = \App\Models\ProductLike::where('product_id', $p->id)->where('location_id', $selectedLocation->id)->count();
             @endphp
-            <div class="col-md-3 mb-4">
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
                 <div class="card h-100 product-card">
-                    <img src="{{ asset('images/products/'.$p->image) }}" class="card-img-top p-2 rounded" style="height: 180px; object-fit: cover;">
+                    <div class="position-relative overflow-hidden" style="border-radius: 16px 16px 0 0;">
+                        <img src="{{ asset('images/products/'.$p->image) }}" class="card-img-top p-2" style="height: 180px; object-fit: cover;">
+                        @if($pivotData->stock <= 5 && $pivotData->stock > 0)
+                            <span class="badge bg-warning text-dark position-absolute" style="top: 10px; right: 10px;">
+                                Sisa {{ $pivotData->stock }}
+                            </span>
+                        @elseif($pivotData->stock == 0)
+                            <span class="badge bg-danger position-absolute" style="top: 10px; right: 10px;">
+                                Habis
+                            </span>
+                        @endif
+                    </div>
                     <div class="card-body">
                         <h6 class="fw-bold mb-1">{{ $p->product_name }}</h6>
                         <p class="small text-muted mb-2">{{ Str::limit($p->description, 40) }}</p>
@@ -73,54 +95,65 @@
                                     style="border: none; background: none;" 
                                     data-product-id="{{ $p->id }}" 
                                     data-liked="{{ $liked ? '1' : '0' }}">
-                                <span class="heart-icon" style="font-size: 1.2rem; color: {{ $liked ? '#dc3545' : '#6c757d' }};">
-                                    {{ $liked ? '❤️' : '🤍' }}
+                                <span class="heart-icon" style="font-size: 1.3rem;">
+                                    <i class="bi {{ $liked ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary' }}"></i>
                                 </span>
-                                <small class="text-muted like-count">{{ $likeCount }}</small>
+                                <small class="text-muted like-count ms-1">{{ $likeCount }}</small>
                             </button>
                         </div>
                         <div class="mt-2">
-                            <small class="text-secondary">Stok: {{ $pivotData->stock }}</small>
+                            <small class="text-secondary">
+                                <i class="bi bi-box-seam me-1"></i>Stok: {{ $pivotData->stock }}
+                            </small>
                         </div>
                     </div>
-                    <!-- Ganti tombol keranjang lama dengan ini -->
                     <form action="/keranjang/tambah" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $p->id }}">
-                        <button type="submit" class="btn btn-keranjang w-100">🛒 + Keranjang</button>
+                        <button type="submit" class="btn btn-keranjang w-100" {{ $pivotData->stock == 0 ? 'disabled' : '' }}>
+                            <i class="bi bi-cart-plus me-1"></i>Tambah ke Keranjang
+                        </button>
                     </form>
                 </div>
             </div>
         @empty
             <div class="col-12 text-center py-5">
-                <p class="text-muted">Belum ada produk untuk kategori/lokasi ini.</p>
+                <i class="bi bi-inbox" style="font-size: 4rem; color: #ddd;"></i>
+                <h5 class="mt-3 text-muted">Belum ada produk</h5>
+                <p class="text-muted">Tidak ada produk untuk kategori/lokasi ini.</p>
             </div>
         @endforelse
     </div>
 @else
     <div class="text-center py-5">
-        <img src="https://cdn-icons-png.flaticon.com/512/1048/1048329.png" width="100" class="mb-3 opacity-50">
-        <h5 class="text-muted">Silakan pilih lokasi outlet terlebih dahulu untuk melihat menu roti.</h5>
+        <div class="card p-5">
+            <i class="bi bi-geo-alt" style="font-size: 5rem; color: #ddd;"></i>
+            <h4 class="mt-4 text-muted fw-bold">Pilih Lokasi Terlebih Dahulu</h4>
+            <p class="text-muted">Silakan pilih outlet Larita di atas untuk melihat menu roti yang tersedia.</p>
+        </div>
     </div>
 @endif
 
 <!-- Modal Sukses Pembayaran -->
 @if(session('order_success'))
 <div class="modal fade" id="modalOrderSuccess" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow text-center">
-            <div class="modal-body py-4">
-                <img src="https://cdn-icons-png.flaticon.com/512/5290/5290058.png" width="80" class="mb-3">
-                <h4 class="fw-bold text-success">Pembayaran Berhasil!</h4>
-                <p class="text-muted small">Pesanan Anda sedang diproses. Silakan cek menu Riwayat Transaksi.</p>
-                <button type="button" class="btn btn-success w-100 mt-3" data-bs-dismiss="modal">Mantap!</button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow text-center" style="border-radius: 20px;">
+            <div class="modal-body py-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                </div>
+                <h4 class="fw-bold text-success mb-2">Pembayaran Berhasil!</h4>
+                <p class="text-muted">Pesanan Anda sedang diproses.<br>Silakan cek menu Riwayat Transaksi.</p>
+                <button type="button" class="btn btn-success btn-lg px-5 mt-3" data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg me-1"></i>Mantap!
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Jalankan modal otomatis saat halaman reload jika ada session order_success
     document.addEventListener("DOMContentLoaded", function() {
         var myModal = new bootstrap.Modal(document.getElementById('modalOrderSuccess'));
         myModal.show();
@@ -131,17 +164,15 @@
 <!-- AJAX Like Toggle Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle like button click
         document.querySelectorAll('.like-btn').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 
                 const productId = this.getAttribute('data-product-id');
-                const heartIcon = this.querySelector('.heart-icon');
+                const heartIcon = this.querySelector('.heart-icon i');
                 const likeCountEl = this.querySelector('.like-count');
                 const isLiked = this.getAttribute('data-liked') === '1';
                 
-                // Send AJAX request
                 fetch('/like/toggle', {
                     method: 'POST',
                     headers: {
@@ -156,18 +187,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update heart icon
                         if (data.liked) {
-                            heartIcon.textContent = '❤️';
-                            heartIcon.style.color = '#dc3545';
+                            heartIcon.className = 'bi bi-heart-fill text-danger';
                             btn.setAttribute('data-liked', '1');
                         } else {
-                            heartIcon.textContent = '🤍';
-                            heartIcon.style.color = '#6c757d';
+                            heartIcon.className = 'bi bi-heart text-secondary';
                             btn.setAttribute('data-liked', '0');
                         }
-                        
-                        // Update like count
                         likeCountEl.textContent = data.likeCount;
                     }
                 })

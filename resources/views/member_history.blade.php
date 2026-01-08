@@ -1,81 +1,139 @@
 @extends('member_master')
 
 @section('konten_member')
-    <!-- Pastikan FontAwesome terpasang untuk icon kaca pembesar -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<div class="page-header">
+    <h3><i class="bi bi-clock-history me-2"></i>Riwayat Transaksi</h3>
+    <p>Lihat semua pesanan yang pernah Anda lakukan</p>
+</div>
 
-    <div class="container-fluid py-4 px-4"> <!-- container-fluid agar melebar ke samping -->
-        
-        <!-- Header & Search Box (Mepet Kiri) -->
-        <div class="row mb-4">
-            <div class="col-12 text-start">
-                <h4 class="fw-bold">Riwayat Transaksi</h4>
-                
-                <!-- Form Pencarian dengan max-width agar textbox tidak terlalu lebar ke kanan -->
-                <form action="/riwayat-transaksi" method="GET" class="mt-3" style="max-width: 400px;">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Cari No. Transaksi..." value="{{ request('search') }}">
-                        <button class="btn" style="background-color: #8B4513; color: white" type="submit">
-                            <i class="fas fa-search me-1"></i> Cari <!-- Icon Kaca Pembesar -->
-                        </button>
-                    </div>
-                </form>
+<!-- Search Box -->
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <form action="/riwayat-transaksi" method="GET">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" name="search" class="form-control border-start-0" 
+                       placeholder="Cari No. Transaksi..." value="{{ request('search') }}">
+                <button class="btn btn-larita" type="submit">
+                    Cari
+                </button>
             </div>
-        </div>
+        </form>
+    </div>
+</div>
 
-        <!-- Grid Card Transaksi -->
+<!-- Grid Card Transaksi -->
 <div class="row">
     @forelse($transactions as $trx)
-        <div class="col-lg-4 col-md-6 col-12 mb-4">
-            <!-- Tambahkan class d-block dan pastikan tag </a> ditutup di bawah -->
+        @php
+            $statusColors = [
+                'pending' => 'warning',
+                'processing' => 'info',
+                'ready' => 'primary',
+                'completed' => 'success'
+            ];
+            $statusIcons = [
+                'pending' => 'hourglass-split',
+                'processing' => 'arrow-repeat',
+                'ready' => 'bag-check',
+                'completed' => 'check-circle-fill'
+            ];
+            $statusTexts = [
+                'pending' => 'Menunggu',
+                'processing' => 'Diproses',
+                'ready' => 'Siap Ambil',
+                'completed' => 'Selesai'
+            ];
+        @endphp
+        <div class="col-lg-4 col-md-6 mb-4">
             <a href="/riwayat-transaksi/detail/{{ $trx->id }}" class="text-decoration-none d-block h-100">
-                <div class="card h-100 shadow-sm border-0"> 
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="card h-100 transaction-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="fw-bold mb-0 text-dark">{{ $trx->location->location_name ?? 'Lokasi' }}</h6>
-                                <small class="text-muted">{{ $trx->created_at->format('d-m-Y') }}</small>
+                                <h6 class="fw-bold mb-1 text-dark">{{ $trx->location->location_name ?? 'Lokasi' }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ $trx->created_at->format('d M Y') }}
+                                </small>
                             </div>
-                            <span class="badge {{ $trx->status == 'completed' ? 'bg-light text-success' : 'bg-light text-danger' }}" style="font-size: 0.8rem;">
-                                {{ $trx->status == 'completed' ? 'Sudah Diambil' : ucfirst($trx->status) }}
+                            <span class="badge bg-{{ $statusColors[$trx->status] ?? 'secondary' }}">
+                                <i class="bi bi-{{ $statusIcons[$trx->status] ?? 'question' }} me-1"></i>
+                                {{ $statusTexts[$trx->status] ?? ucfirst($trx->status) }}
                             </span>
                         </div>
 
-                        <div class="mb-2">
-                            <small class="text-muted d-block">No Transaksi {{ $trx->invoice_number }}</small>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">No. Transaksi</small>
+                            <span class="badge bg-light text-dark fw-normal">{{ $trx->invoice_number }}</span>
                         </div>
 
-                        <div class="mb-3" style="min-height: 50px;">
+                        <div class="mb-3 product-preview">
                             @if($trx->details->count() > 0)
                                 @php 
                                     $firstProduct = $trx->details->first()->product->product_name;
                                     $othersCount = $trx->details->count() - 1;
                                 @endphp
-                                <span class="fw-bold text-secondary">{{ $firstProduct }}</span>
+                                <span class="fw-semibold text-dark">{{ $firstProduct }}</span>
                                 @if($othersCount > 0)
-                                    <span class="text-muted small"> dan {{ $othersCount }} produk lain</span>
+                                    <span class="text-muted small"> +{{ $othersCount }} produk lain</span>
                                 @endif
                             @endif
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                            <small class="text-muted">{{ $trx->details->count() }} Produk</small>
-                            <div>
-                                <small class="text-muted">Total Harga</small>
-                                <span class="fw-bold d-block" style="color: #8B4513; font-size: 1.1rem;">
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <span class="text-muted small">
+                                <i class="bi bi-box-seam me-1"></i>{{ $trx->details->count() }} Produk
+                            </span>
+                            <div class="text-end">
+                                <small class="text-muted d-block">Total</small>
+                                <span class="fw-bold" style="color: #8B4513; font-size: 1.1rem;">
                                     Rp {{ number_format($trx->final_price, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
                     </div>
+                    <div class="card-footer bg-light text-center py-2">
+                        <small class="text-primary fw-semibold">
+                            <i class="bi bi-eye me-1"></i>Lihat Detail
+                        </small>
+                    </div>
                 </div>
-            </a> <!-- INI YANG PENTING: Jangan lupa tutup tag a di sini -->
+            </a>
         </div>
     @empty
-        <div class="col-12 text-center mt-5">
-            <p class="text-muted">Tidak ada transaksi ditemukan.</p>
+        <div class="col-12">
+            <div class="card text-center py-5">
+                <i class="bi bi-receipt" style="font-size: 4rem; color: #ddd;"></i>
+                <h5 class="mt-3 text-muted">Belum Ada Transaksi</h5>
+                <p class="text-muted">Anda belum pernah melakukan transaksi.</p>
+                <a href="/home" class="btn btn-larita mx-auto" style="width: fit-content;">
+                    <i class="bi bi-shop me-1"></i>Mulai Belanja
+                </a>
+            </div>
         </div>
     @endforelse
 </div>
-    </div>
+
+<style>
+.transaction-card {
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.transaction-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-color: #8B4513;
+}
+
+.transaction-card .card-footer {
+    border-top: 1px solid #eee;
+}
+
+.product-preview {
+    min-height: 24px;
+}
+</style>
 @endsection

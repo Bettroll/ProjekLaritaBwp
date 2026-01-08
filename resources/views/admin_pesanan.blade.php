@@ -1,69 +1,70 @@
 @extends('admin_master')
 
 @section('konten_admin')
-
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="fw-bold mb-1">📦 Pesanan Masuk</h3>
-        <p class="text-muted mb-0">Kelola semua pesanan dari pelanggan</p>
-    </div>
-    <div class="text-end">
-        <small class="text-muted">Total Pesanan: <strong>{{ $stats['total'] }}</strong></small>
-    </div>
+<div class="page-header">
+    <h3>Pesanan Masuk</h3>
+    <p>Kelola semua pesanan dari pelanggan</p>
 </div>
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
-            <div class="card-body text-center">
-                <h2 class="fw-bold text-warning mb-0">{{ $stats['pending'] }}</h2>
-                <small class="text-muted">⏳ Pending</small>
-            </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);">
+            <div class="stats-icon"><i class="bi bi-hourglass-split"></i></div>
+            <p class="mb-1">Pending</p>
+            <h2>{{ $stats['pending'] }}</h2>
+            <small>Menunggu konfirmasi</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-info bg-opacity-10">
-            <div class="card-body text-center">
-                <h2 class="fw-bold text-info mb-0">{{ $stats['processing'] }}</h2>
-                <small class="text-muted">🔄 Diproses</small>
-            </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);">
+            <div class="stats-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <p class="mb-1">Diproses</p>
+            <h2>{{ $stats['processing'] }}</h2>
+            <small>Sedang diproses</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
-            <div class="card-body text-center">
-                <h2 class="fw-bold text-primary mb-0">{{ $stats['ready'] }}</h2>
-                <small class="text-muted">✅ Siap</small>
-            </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);">
+            <div class="stats-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <p class="mb-1">Siap</p>
+            <h2>{{ $stats['ready'] }}</h2>
+            <small>Siap diambil/dikirim</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-success bg-opacity-10">
-            <div class="card-body text-center">
-                <h2 class="fw-bold text-success mb-0">{{ $stats['completed'] }}</h2>
-                <small class="text-muted">🎉 Selesai</small>
-            </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
+            <div class="stats-icon"><i class="bi bi-trophy-fill"></i></div>
+            <p class="mb-1">Selesai</p>
+            <h2>{{ $stats['completed'] }}</h2>
+            <small>Pesanan selesai</small>
         </div>
     </div>
 </div>
 
 <!-- Filter & Search -->
-<div class="card border-0 shadow-sm mb-4">
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="m-0 fw-bold" style="color: #8B4513;">
+            <i class="bi bi-funnel-fill me-2"></i>Filter & Pencarian
+        </h6>
+    </div>
     <div class="card-body">
         <form action="/admin/pesanan" method="GET" class="row g-3 align-items-end">
             <!-- Search Bar -->
             <div class="col-md-5">
-                <label class="form-label fw-semibold">🔍 Cari Pesanan</label>
-                <input type="text" name="search" class="form-control" 
-                       placeholder="Cari ID, Invoice, Nama, Email, Lokasi, Tanggal..." 
-                       value="{{ request('search') }}">
+                <label class="form-label fw-semibold">Cari Pesanan</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Cari ID, Invoice, Nama, Email, Lokasi, Tanggal..." 
+                           value="{{ request('search') }}">
+                </div>
             </div>
             
             <!-- Status Filter -->
             <div class="col-md-3">
-                <label class="form-label fw-semibold">📋 Filter Status</label>
+                <label class="form-label fw-semibold">Filter Status</label>
                 <select name="status" class="form-select">
                     <option value="all" {{ request('status') == 'all' || !request('status') ? 'selected' : '' }}>Semua Status</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏳ Pending</option>
@@ -76,10 +77,10 @@
             <!-- Buttons -->
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Cari
+                    <i class="bi bi-search me-1"></i>Cari
                 </button>
-                <a href="/admin/pesanan" class="btn btn-outline-secondary">
-                    Reset
+                <a href="/admin/pesanan" class="btn btn-secondary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Reset
                 </a>
             </div>
         </form>
@@ -87,11 +88,17 @@
 </div>
 
 <!-- Orders Table -->
-<div class="card border-0 shadow-sm">
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold" style="color: #8B4513;">
+            <i class="bi bi-cart-check-fill me-2"></i>Daftar Pesanan
+        </h6>
+        <small class="text-muted">Total: {{ $stats['total'] }} pesanan</small>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
                         <th class="px-3">ID</th>
                         <th>Invoice</th>
