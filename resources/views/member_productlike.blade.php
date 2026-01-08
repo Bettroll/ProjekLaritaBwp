@@ -39,13 +39,15 @@
 						<p class="small text-muted mb-2">{{ Str::limit($p->description, 40) }}</p>
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="price-tag">Rp {{ number_format($pivotData->price) }}</span>
-							<form action="/like/toggle" method="POST" class="d-inline">
-								@csrf
-								<input type="hidden" name="product_id" value="{{ $p->id }}">
-								<button type="submit" class="btn btn-sm {{ $liked ? 'btn-danger' : 'btn-outline-danger' }}">
-									❤️ {{ $likeCount }}
-								</button>
-							</form>
+							<button type="button" class="btn btn-link p-0 text-decoration-none like-btn" 
+									style="border: none; background: none;" 
+									data-product-id="{{ $p->id }}" 
+									data-liked="{{ $liked ? '1' : '0' }}">
+								<span class="heart-icon" style="font-size: 1.2rem; color: {{ $liked ? '#dc3545' : '#6c757d' }};">
+									{{ $liked ? '❤️' : '🤍' }}
+								</span>
+								<small class="text-muted like-count">{{ $likeCount }}</small>
+							</button>
 						</div>
 						<div class="mt-2">
 							<small class="text-secondary">Stok: {{ $pivotData->stock }}</small>
@@ -72,5 +74,71 @@
 		<a href="/home" class="btn btn-outline-secondary btn-sm mt-2">Pergi ke Beranda</a>
 	</div>
 @endif
+
+<!-- AJAX Like Toggle Script -->
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Handle like button click
+		document.querySelectorAll('.like-btn').forEach(function(btn) {
+			btn.addEventListener('click', function(e) {
+				e.preventDefault();
+				
+				const productId = this.getAttribute('data-product-id');
+				const heartIcon = this.querySelector('.heart-icon');
+				const likeCountEl = this.querySelector('.like-count');
+				const isLiked = this.getAttribute('data-liked') === '1';
+				const card = this.closest('.card');
+				
+				// Send AJAX request
+				fetch('/like/toggle', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': '{{ csrf_token() }}',
+						'X-Requested-With': 'XMLHttpRequest'
+					},
+					body: JSON.stringify({
+						product_id: productId
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						// Update heart icon
+						if (data.liked) {
+							heartIcon.textContent = '❤️';
+							heartIcon.style.color = '#dc3545';
+							btn.setAttribute('data-liked', '1');
+						} else {
+							heartIcon.textContent = '🤍';
+							heartIcon.style.color = '#6c757d';
+							btn.setAttribute('data-liked', '0');
+							
+							// Optional: Remove card with animation if unliked on productlike page
+							if (window.location.pathname === '/productlike') {
+								card.style.transition = 'opacity 0.3s';
+								card.style.opacity = '0';
+								setTimeout(() => {
+									card.closest('.col-md-3').remove();
+									
+									// Check if no more products
+									if (document.querySelectorAll('.product-card').length === 0) {
+										location.reload();
+									}
+								}, 300);
+							}
+						}
+						
+						// Update like count
+						likeCountEl.textContent = data.likeCount;
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+				});
+			});
+		});
+	});
+</script>
 
 @endsection

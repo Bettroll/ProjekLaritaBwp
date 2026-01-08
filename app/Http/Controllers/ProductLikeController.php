@@ -58,6 +58,9 @@ class ProductLikeController extends Controller
         $locationId = Session::get('selected_location_id');
 
         if (!$locationId) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Silakan pilih lokasi terlebih dahulu.'], 400);
+            }
             return redirect('/home')->with('error', 'Silakan pilih lokasi terlebih dahulu.');
         }
 
@@ -71,7 +74,8 @@ class ProductLikeController extends Controller
         if ($existing) {
             // Hapus dari favorit (unlike)
             $existing->delete();
-            return back()->with('success', 'Produk dihapus dari favorit.');
+            $liked = false;
+            $message = 'Produk dihapus dari favorit.';
         } else {
             // Tambah ke favorit (like)
             ProductLike::create([
@@ -79,7 +83,26 @@ class ProductLikeController extends Controller
                 'product_id' => $productId,
                 'location_id' => $locationId,
             ]);
-            return back()->with('success', 'Produk ditambahkan ke favorit.');
+            $liked = true;
+            $message = 'Produk ditambahkan ke favorit.';
         }
+
+        // Hitung total like untuk produk ini di lokasi ini
+        $likeCount = ProductLike::where('product_id', $productId)
+            ->where('location_id', $locationId)
+            ->count();
+
+        // Jika AJAX request, return JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'liked' => $liked,
+                'likeCount' => $likeCount,
+                'message' => $message
+            ]);
+        }
+
+        // Jika bukan AJAX, redirect back
+        return back()->with('success', $message);
     }
 }
