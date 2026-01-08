@@ -12,6 +12,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\MemberVoucherController;
 
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\ProductLikeController;
 
 // Halaman awal
 Route::get('/', function () { return redirect('/login'); });
@@ -27,6 +28,10 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware(['role:member'])->group(function () {
     Route::get('/home', [MemberController::class, 'index']);
     Route::post('/set-location', [MemberController::class, 'setLocation']);
+
+    // Product Like (Favorite)
+    Route::get('/productlike', [ProductLikeController::class, 'index']);
+    Route::post('/like/toggle', [ProductLikeController::class, 'toggle']);
 
     // Route Keranjang
     Route::get('/keranjang', [CartController::class, 'index']);

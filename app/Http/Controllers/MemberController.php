@@ -65,7 +65,7 @@ class MemberController extends Controller
         
         // 1. Ambil item keranjang yang dipilih saja
         $cartItems = \App\Models\Cart::whereIn('id', $selectedIds)
-                    ->where('user_id', \Auth::id())
+                    ->where('user_id', Auth::id())
                     ->with('product.locations')
                     ->get();
 
@@ -73,7 +73,7 @@ class MemberController extends Controller
         $location = \App\Models\Location::find($location_id);
 
         // 3. Ambil voucher yang dimiliki member dan BELUM digunakan (is_used = 0)
-        $userVouchers = \Auth::user()->vouchers()->wherePivot('is_used', 0)->get();
+        $userVouchers = Auth::user()->vouchers()->wherePivot('is_used', 0)->get();
 
         return view('member_checkout', compact('cartItems', 'location', 'userVouchers'));
     }

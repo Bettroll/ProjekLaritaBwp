@@ -63,7 +63,22 @@
                         <p class="small text-muted mb-2">{{ Str::limit($p->description, 40) }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price-tag">Rp {{ number_format($pivotData->price) }}</span>
-                            <span class="text-danger small">❤️ {{ $likeCount }}</span>
+                            @php
+                                $liked = Auth::check() ? \App\Models\ProductLike::where('product_id', $p->id)
+                                    ->where('location_id', $selectedLocation->id)
+                                    ->where('user_id', Auth::id())
+                                    ->exists() : false;
+                            @endphp
+                            <form action="/like/toggle" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                <button type="submit" class="btn btn-link p-0 text-decoration-none" style="border: none; background: none;">
+                                    <span style="font-size: 1.2rem; color: {{ $liked ? '#dc3545' : '#6c757d' }};">
+                                        {{ $liked ? '❤️' : '🤍' }}
+                                    </span>
+                                    <small class="text-muted">{{ $likeCount }}</small>
+                                </button>
+                            </form>
                         </div>
                         <div class="mt-2">
                             <small class="text-secondary">Stok: {{ $pivotData->stock }}</small>

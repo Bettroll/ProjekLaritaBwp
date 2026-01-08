@@ -33,7 +33,7 @@
                     <li class="nav-item"><a class="nav-link {{ Request::is('home*') ? 'active' : '' }}" href="/home">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}" href="/voucher">Voucher</a></li>
                     <li class="nav-item"><a class="nav-link {{ Request::is('riwayat-transaksi*') ? 'active' : '' }}" href="/riwayat-transaksi">Transaksi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Product Likes</a></li>
+                    <li class="nav-item"><a class="nav-link {{ Request::is('productlike*') ? 'active' : '' }}" href="/productlike">Product Likes</a></li>
                 </ul>
                 <div class="d-flex align-items-center">
                     <!-- Di dalam member_master.blade.php -->
