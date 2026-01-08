@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminLocationController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AdminStockController;
 use App\Http\Controllers\AdminVoucherController;
 use App\Http\Controllers\CartController;
@@ -85,4 +86,6 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/admin/voucher/tambah', [AdminVoucherController::class, 'store']);
     Route::post('/admin/voucher/update/{id}', [AdminVoucherController::class, 'update']);
     Route::get('/admin/voucher/hapus/{id}', [AdminVoucherController::class, 'destroy']);
+
+    Route::get('/admin/laporan', [AdminReportController::class, 'index']);
 });
