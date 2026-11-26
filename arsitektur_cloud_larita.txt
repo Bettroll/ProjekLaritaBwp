@@ -1,0 +1,30 @@
+Proyek: Larita Bakery (Web E-Commerce Multi-Outlet berbasis Laravel 12)
+
+Compute:
+Menggunakan container stateless berbasis Docker untuk menjalankan web server Nginx + PHP-FPM (Laravel 12 / PHP 8.2) melalui layanan compute cloud (seperti AWS ECS Fargate atau Google Cloud Run). Selain web server utama, disiapkan container worker terpisah untuk menjalankan Laravel Queue (`php artisan queue:work`) dan scheduler guna menangani proses berat secara asynchronous (seperti pemrosesan notifikasi pesanan, pembuatan laporan transaksi multi-cabang, dan pemanggilan API AI) tanpa membebani respons halaman utama member maupun admin.
+
+Data:
+1. Managed Relational Database (MySQL/PostgreSQL melalui Amazon RDS atau Google Cloud SQL): Menyimpan seluruh data transaksional dan master aplikasi Larita Bakery (tabel `users`, `locations`, `categories`, `products`, `location_product` untuk manajemen harga & stok per cabang, `carts`, `product_likes`, `vouchers`, `user_vouchers`, `transactions`, dan `transaction_details`) dengan dukungan automated backup dan high availability.
+2. In-Memory Data Store (Redis melalui Amazon ElastiCache atau Google Cloud Memorystore): Menggantikan penyimpanan session, cache, dan antrean queue yang sebelumnya memakai database lokal menjadi terpusat (`SESSION_DRIVER=redis`, `CACHE_STORE=redis`, `QUEUE_CONNECTION=redis`). Hal ini memastikan session pilihan outlet (`selected_location_id`), isi keranjang, dan cache rekomendasi AI tetap sinkron meskipun aplikasi berjalan di banyak instance container sekaligus.
+
+Networking:
+1. Virtual Private Cloud (VPC): Memisahkan jaringan cloud menjadi Public Subnet (untuk Load Balancer dan NAT Gateway) dan Private Subnet (untuk container aplikasi Laravel, Redis, serta Database RDS/Cloud SQL) agar komponen inti tidak terekspos langsung ke internet publik.
+2. Application Load Balancer (ALB / Cloud Load Balancing): Mendistribusikan traffic HTTP/HTTPS dari member dan admin secara merata ke seluruh container compute yang sehat melalui mekanisme health check.
+3. DNS, SSL/TLS & Security Group/Firewall: Pengelolaan domain dengan HTTPS terenkripsi (TLS/SSL) serta pembatasan aturan firewall antar layer (misalnya port database 3306/5432 dan Redis 6379 hanya dapat diakses dari subnet aplikasi).
+
+Delivery:
+1. Content Delivery Network (CDN - Amazon CloudFront / Cloudflare / Cloud CDN): Mempercepat pengiriman aset statis aplikasi (gambar produk roti dari Object Storage dan bundle CSS/JS hasil build Vite) melalui edge location terdekat ke pengguna sehingga waktu muat katalog roti lebih cepat dan beban server utama berkurang.
+2. CI/CD Pipeline (GitHub Actions + Container Registry): Mengotomatisasi proses pengujian, kompilasi aset frontend (`npm run build`), build Docker image, dan deployment otomatis dari repositori GitHub setiap ada perubahan kode pada proyek Larita Bakery.
+
+Orchestration:
+1. Container Orchestration (Docker + AWS ECS / Google Cloud Run / Kubernetes): Mengelola penjadwalan container web Laravel dan Queue Worker secara otomatis, termasuk auto-restart jika terjadi crash, rolling deployment tanpa downtime, serta service discovery antar komponen.
+2. Auto Scaling & Infrastructure as Code (Terraform / CloudFormation): Menambah atau mengurangi jumlah container secara otomatis berdasarkan beban CPU/traffic (misalnya saat jam ramai pemesanan roti atau periode promo voucher), serta mendefinisikan infrastruktur cloud dalam bentuk kode agar mudah direplikasi dan dikelola.
+
+Storage:
+1. Cloud Object Storage (Amazon S3 / Google Cloud Storage): Memindahkan penyimpanan gambar produk roti yang sebelumnya tersimpan secara lokal di `public/images/products/` ke Object Storage menggunakan driver `s3` yang sudah tersedia pada `config/filesystems.php` Laravel. Dengan penyimpanan objek terpusat, file gambar tetap aman, persisten, dan mudah diakses oleh seluruh container saat dilakukan scaling.
+2. Backup & Log Storage: Menyimpan snapshot database otomatis harian, arsip ekspor laporan penjualan admin, serta log aplikasi terpusat (CloudWatch / Cloud Logging) untuk kebutuhan monitoring dan troubleshooting.
+
+Fitur AI:
+AI Smart Demand Forecasting & Restock Alert Multi-Cabang (Cloud-Native Predictive Analytics):
+Fitur AI pada dashboard Admin yang menganalisis riwayat transaksi (`transactions` dan `transaction_details`), tren produk favorit (`product_likes`), serta sisa stok harian (`location_product`) di setiap outlet Larita Bakery untuk memprediksi kebutuhan stok dan produksi roti per cabang pada hari berikutnya.
+- Alur Cloud Computing: Cloud Scheduler memicu job analisis secara berkala -> Laravel Queue Worker / Cloud Function mengambil agregasi data penjualan dari Managed Database -> dikirim ke layanan AI/ML (seperti Vertex AI / Amazon Bedrock / microservice Python ML di Cloud Run) -> hasil prediksi restock & peringatan stok menipis/berlebih disimpan di Redis Cache dan ditampilkan di dashboard Admin (beserta rekomendasi pembuatan voucher otomatis untuk produk yang berpotensi tidak habis terjual).
